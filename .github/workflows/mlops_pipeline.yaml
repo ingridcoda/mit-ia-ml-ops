@@ -1,0 +1,53 @@
+name: Credit Risk MLOps Pipeline (CI/CD)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Instalar Dependências
+        run: |
+          python -m pip install --upgrade pip
+          # Instala dependências do projeto e as ferramentas de teste
+          pip install -r requirements.txt
+          pip install flake8 pytest pytest-mock
+
+      - name: Validar Sintaxe (Linting)
+        run: |
+          # Verifica erros fatais de sintaxe e lógica básica
+          flake8 src/ production_app/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Executar Testes Automatizados (Pytest)
+        run: |
+          # Executa toda a suíte de testes (Core, Ingestão, Modelagem, App)
+          # Define o PYTHONPATH para garantir que os módulos src e production_app sejam encontrados
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          pytest tests/ --no-header -v
+
+      - name: Construir Imagem Docker (Artefato de Produção)
+        # Esta etapa só roda se os testes passarem
+        run: |
+          echo "Construindo imagem da aplicação de Risco de Crédito..."
+          docker build -t credit-risk-app:latest .
+
+      - name: Simulação de Deploy Contínuo (CD)
+        run: |
+          echo "✅ Testes e Imagem Docker validados."
+          echo "🚀 Simulando push para o Container Registry e deploy em Produção..."
+          echo "Deploy concluído com sucesso."

@@ -1,0 +1,24 @@
+pipeline:
+  name: "credit-risk-pipeline"
+  version: "1.0.0"
+  description: "Pipeline MLOps para Classificação de Risco de Crédito (UCI Dataset)"
+
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  output_filename: "credit_risk.parquet"
+  features_data_dir: "data/features"
+  features_filename: "credit_features.parquet"
+
+execution:
+  skip_download_if_exists: true
+  skip_ingest_if_exists: true
+  force_redownload: false
+  force_ingest: false
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s [%(levelname)s] %(name)s - %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
+  log_to_file: true
+  log_file: "pipeline.log"

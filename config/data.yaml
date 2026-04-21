@@ -1,0 +1,27 @@
+# ── Configurações de Ingestão e Schema ─────────────────────────────────────────
+
+kaggle:
+  dataset: "kabure/german-credit-data-with-risk"
+  file_pattern: "*.csv"
+  expected_files: [ ]
+
+ingest:
+  output_format: "parquet"
+  compression: "snappy"
+  chunk_size_rows: 10000
+  convert_dtypes: true
+  validate_schema: true
+
+schema:
+  # Colunas obrigatórias para o domínio de Risco de Crédito
+  required_columns:
+    - "Age"
+    - "Sex"
+    - "Job"
+    - "Housing"
+    - "Saving accounts"
+    - "Checking account"
+    - "Credit amount"
+    - "Duration"
+    - "Purpose"
+    - "Risk" # Target: good/bad

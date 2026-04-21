@@ -1,0 +1,101 @@
+"""
+test_quality.py — Testes unitários do motor de auditoria de dados.
+"""
+import json
+from unittest.mock import MagicMock
+
+import pandas as pd
+import pytest
+
+from src.quality.expectation_resolver import GeExpectationResolver
+from src.quality.ge_validator import GreatExpectationsValidator
+from src.quality.report_writer import QualityReportWriter
+
+
+# ── TESTES DO RESOLVER ──────────────────────────────────────────────────────
+
+def test_resolver_converte_snake_case_para_ge():
+    """Garante que strings YAML viram classes do Great Expectations."""
+    gxe_mock = MagicMock()
+    gxe_mock.ExpectColumnValuesToBeBetween = "ClasseMockada"
+
+    resolver = GeExpectationResolver(gxe_mock)
+    resultado = resolver.resolve("expect_column_values_to_be_between")
+
+    assert resultado == "ClasseMockada"
+
+
+def test_resolver_lanca_erro_se_regra_invalida():
+    """Garante que regras inexistentes quebram com mensagem clara."""
+    gxe_mock = MagicMock()
+    del gxe_mock.RegraInexistente
+    del gxe_mock.regra_inexistente
+
+    resolver = GeExpectationResolver(gxe_mock)
+    with pytest.raises(AttributeError, match="não suportada pelo motor GE"):
+        resolver.resolve("regra_inexistente")
+
+
+# ── TESTES DO REPORT WRITER ─────────────────────────────────────────────────
+
+def test_quality_report_writer_cria_json(tmp_path, null_logger):
+    """Verifica se o escritor de artefatos salva o JSON corretamente."""
+    writer = QualityReportWriter(null_logger)
+    summary = {"success": True}
+
+    report_path = writer.write(summary, tmp_path)
+
+    # Validações de arquivo e conteúdo
+    assert report_path.exists()
+    assert report_path.suffix == ".json"
+
+    with open(report_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        assert data["success"] is True
+        assert "timestamp" in data
+        assert "Auditoria concluída" in data["message"]
+
+
+# ── TESTES DO VALIDATOR ─────────────────────────────────────────────────────
+
+def test_ge_validator_sucesso(null_logger):
+    """Valida o caminho feliz da auditoria usando mocks da V1.0+."""
+    # Configurando o ambiente fake do Great Expectations
+    gx_mock = MagicMock()
+    context_mock = gx_mock.get_context.return_value
+    results_mock = MagicMock()
+    results_mock.success = True
+    context_mock.checkpoints.add.return_value.run.return_value = results_mock
+
+    resolver_mock = MagicMock()
+    validator = GreatExpectationsValidator(resolver_mock, null_logger, gx_mock)
+
+    df = pd.DataFrame({"A": [1, 2, 3]})
+    config = {
+        "quality": {"suite_name": "test_suite", "fail_pipeline_on_error": True},
+        "table_expectations": [],
+        "column_expectations": {}
+    }
+
+    summary = validator.validate(df, config)
+    assert summary["success"] is True
+
+
+def test_ge_validator_fail_fast_quebra_pipeline(null_logger):
+    """Garante que o pipeline estoure um erro se os dados estiverem ruins e a flag ativa."""
+    gx_mock = MagicMock()
+    context_mock = gx_mock.get_context.return_value
+    results_mock = MagicMock()
+    results_mock.success = False  # Simulando dados reprovados!
+    context_mock.checkpoints.add.return_value.run.return_value = results_mock
+
+    resolver_mock = MagicMock()
+    validator = GreatExpectationsValidator(resolver_mock, null_logger, gx_mock)
+
+    df = pd.DataFrame({"A": [1, 2, 3]})
+    config = {
+        "quality": {"fail_pipeline_on_error": True}
+    }
+
+    with pytest.raises(RuntimeError, match="Qualidade de dados insuficiente"):
+        validator.validate(df, config)

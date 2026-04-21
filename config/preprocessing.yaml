@@ -1,0 +1,33 @@
+preprocessing:
+  output_dir: "data/features"
+  output_filename: "credit_features.parquet"
+  compression: "snappy"
+
+binary_flags:
+  - column: "Credit amount"
+    value: 10000
+    new_column: "is_high_risk_amount"
+    inference_safe: true
+
+categorical_encoding:
+  - column: "Checking account"
+    ordinal_column: "checking_acc_encoded"
+    ordinal_map: { "little": 0, "moderate": 1, "rich": 2 }
+    one_hot_prefix: "ca"
+    drop_first: true
+
+log_transform:
+  columns:
+    - "Credit amount"
+
+feature_selection:
+  target: "Risk"
+  features_to_keep:
+    - "Age"
+    - "Job"
+    - "Credit amount"
+    - "log_Credit amount"
+    - "Duration"
+    - "checking_acc_encoded"
+    - "is_high_risk_amount"
+    - "Risk"

@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
-
 from src.modeling.evaluator import HoldoutEvaluator
 
 

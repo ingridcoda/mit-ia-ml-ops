@@ -4,7 +4,6 @@ transformers/feature_selector.py — Seletor de Domínio de Crédito.
 from __future__ import annotations
 
 import pandas as pd
-
 from src.preprocessing.base import BaseFeatureTransformer
 
 

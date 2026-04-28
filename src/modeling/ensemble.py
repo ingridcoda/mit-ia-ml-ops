@@ -4,7 +4,6 @@ modeling/ensemble.py — Component responsible for constructing ensemble models,
 from __future__ import annotations
 
 from sklearn.ensemble import VotingClassifier
-
 from src.modeling.metrics import agregar_metricas_folds
 
 

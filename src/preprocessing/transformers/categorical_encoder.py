@@ -2,7 +2,6 @@
 from typing import Any
 
 import pandas as pd
-
 from src.preprocessing.base import BaseFeatureTransformer
 
 

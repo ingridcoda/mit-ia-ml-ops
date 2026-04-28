@@ -9,7 +9,6 @@ from typing import Any
 import pandas as pd
 from sklearn.base import clone
 from sklearn.model_selection import StratifiedKFold
-
 from src.modeling.metrics import calcular_metricas
 
 

@@ -1,0 +1,30 @@
+# ── Core & Infra ──────────────────────────────────────────────────────────────
+kaggle>=1.6.0
+pyarrow>=15.0.0
+PyYAML>=6.0.1
+python-dotenv>=1.0.0
+
+# ── Ciência de Dados ──────────────────────────────────────────────────────────
+numpy>=2.1.0
+pandas>=2.2.2
+pandas-stubs~=2.2.0.240203
+scipy>=1.14.0
+statsmodels>=0.14.4
+
+# ── Machine Learning & MLOps ──────────────────────────────────────────────────
+scikit-learn>=1.5.2
+skops>=0.11.0
+xgboost>=2.1.1
+mlflow>=2.17.0
+optuna>=4.0.0
+joblib>=1.4.2
+
+# ── Qualidade & Interface ─────────────────────────────────────────────────────
+great-expectations>=1.0.0
+matplotlib>=3.9.2
+seaborn>=0.13.2
+streamlit>=1.39.0
+watchdog>=6.0.0
+
+# ── Testes ────────────────────────────────────────────────────────────────────
+pytest>=8.3.3
